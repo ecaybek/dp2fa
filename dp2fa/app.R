@@ -16,14 +16,17 @@ ui <- dashboardPage(
     dashboardSidebar(
         sidebarMenu(
             menuItem("Home", tabName = "home", icon = icon("dashboard")),
-            menuItem("Cite", tabName = "cite", icon = icon("th"))
+            menuItem("Cite", tabName = "cite", icon = icon("th")),
+            menuItem("Manual", tabName = "manual", icon = icon("book-open"))
             )
         ),
     dashboardBody(
         tabItems(
         tabItem(tabName = "home",
                 fluidRow(
-                    box(
+                    box(title = "User Input", 
+                        status = "primary", 
+                        solidHeader = TRUE,
                         fileInput("file", "Upload your items-only data 
                                   [sav or csv]"),
                         selectInput("cutoff", 
@@ -35,7 +38,9 @@ ui <- dashboardPage(
                                       value = TRUE),
                         uiOutput("dlButton")
                         ),
-                    box(
+                    box(title = "Results", 
+                        status = "warning", 
+                        solidHeader = TRUE,
                         verbatimTextOutput("little"),
                         verbatimTextOutput("md"),
                         verbatimTextOutput("mvn")
@@ -44,7 +49,9 @@ ui <- dashboardPage(
                 ),
         tabItem(tabName = "cite",
                 fluidRow(
-                    box(
+                    box(title = "How to Cite?", 
+                        status = "primary", 
+                        solidHeader = TRUE,
                         print("Please cite this work as:"),
                         br(),
                         br(),
@@ -59,6 +66,32 @@ ui <- dashboardPage(
                         br(),
                         verbatimTextOutput( "citation")
                         
+                    )
+                )),
+        tabItem(tabName = "manual",
+                fluidRow(
+                    box(title = "Manual", 
+                        status = "primary", 
+                        solidHeader = TRUE,
+                        print(strong("This application 
+                                     basically runs following:")),
+                        br(),
+                        print("Checking if your missing values are 
+                              completely at random or not"),
+                        br(),
+                        print("If missings are CAR: 
+                              Assigning column means to the missing values"),
+                        br(),
+                        print("If missings are NOT CAR: 
+                              Running multiple imputation"),
+                        br(),
+                        print("Detecting and removing multivariate outliers"),
+                        br(),
+                        print("Running and reporting 
+                              Mardia's multivariate test"),
+                        br(),
+                        print("Creates a button for 
+                              downloading the edited data")
                     )
                 ))
         )
