@@ -153,10 +153,13 @@ server <- function(input, output) {
     
     ##### Multivariate Normality #####
     output$mvn <- renderPrint({
-        req(input$file)
-        req(data.without.outliers)
+      req(input$file)
+      if(is.null(data.without.outliers)){
+        NULL
+      } else {
         print("Multivariate normality test results for outliers-free data")
         mvn(data.without.outliers)$multivariateNormality
+      }
     })
     
     ##### Download Button #####
