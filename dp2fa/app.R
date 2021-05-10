@@ -38,7 +38,7 @@ ui <- dashboardPage(
                     fluidRow(
                       column(6, uiOutput("run")),
                       column(6, uiOutput("dlButton"))
-                      )
+                    )
                 ),
                 box(title = "Results", 
                     status = "warning", 
@@ -92,12 +92,12 @@ ui <- dashboardPage(
                     br(),
                     print("Creates a button for 
                               downloading the edited data")
-                    )
                 )
               )
       )
     )
   )
+)
 
 ##### SERVER #####
 server <- function(input, output, session) {
@@ -142,23 +142,23 @@ server <- function(input, output, session) {
         print("Your data does not contain any missing value!")
         data2 <<- data
       } else {
-      if(isTRUE(input$fixmissing)){
-        if(missing.test$p.value < 0.05){
-          print("")
-          print("Missings are NOT completely at random.")
-          br()
-          print("Multiple imputation method was used.")
-          mimp <- mice(data, print = FALSE)
-          imputed.data <- complete(mimp)
-        } else{
-          br()
-          print("Missings are completely at random. Variable means will be used.")
-          imputed.data <- round(na_mean(data))
-        }
-        data2 <<- imputed.data
-        #colnames(data2) <<- paste0("i",1:ncol(data2))
-        print(head(data2))
-      }}
+        if(isTRUE(input$fixmissing)){
+          if(missing.test$p.value < 0.05){
+            print("")
+            print("Missings are NOT completely at random.")
+            br()
+            print("Multiple imputation method was used.")
+            mimp <- mice(data, print = FALSE)
+            imputed.data <- complete(mimp)
+          } else{
+            br()
+            print("Missings are completely at random. Variable means will be used.")
+            imputed.data <- round(na_mean(data))
+          }
+          data2 <<- imputed.data
+          #colnames(data2) <<- paste0("i",1:ncol(data2))
+          print(head(data2))
+        }}
     })
     
     ##### Mahalanobis Distance & Remove Outliers #####
@@ -194,7 +194,11 @@ server <- function(input, output, session) {
         data5 <<- cbind(data4, data3)
       }
       print(paste("Number of multivariate outliers:", length(outliers)))
-      print(" These outliers removed from your dataset.")
+      if(length(outliers) == 0){
+        print("You do NOT have any multivariate outliers")
+      } else {
+        print(" These outliers removed from your dataset.")
+      }
       br()
       br()
       print("Multivariate normality test results for outliers-free data")
