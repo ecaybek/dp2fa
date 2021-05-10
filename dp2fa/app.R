@@ -138,6 +138,10 @@ server <- function(input, output, session) {
       first <- which(input$firstItem == colnames(data()))
       data <- fullData[,first:ncol(fullData)]
       missing.test <- LittleMCAR(data)
+      if(sum(missing.test$amount.missing) == 0){
+        print("Your data does not contain any missing value!")
+        data2 <<- data
+      } else {
       if(isTRUE(input$fixmissing)){
         if(missing.test$p.value < 0.05){
           print("")
@@ -154,7 +158,7 @@ server <- function(input, output, session) {
         data2 <<- imputed.data
         #colnames(data2) <<- paste0("i",1:ncol(data2))
         print(head(data2))
-      }
+      }}
     })
     
     ##### Mahalanobis Distance & Remove Outliers #####
@@ -170,11 +174,25 @@ server <- function(input, output, session) {
       alpha <- as.numeric(input$cutoff)
       cut <- qchisq(p = 1 - alpha, df = ncol(data))
       outliers <- which(md > cut)
-      data.without.outliers <- data[-outliers,]
-      rest.of.data.without.outliers <- data()[,1:(first-1)]
-      rest.of.data.without.outliers <- rest.of.data.without.outliers[-outliers,]
+      if(first == 1){
+        rest.of.data.without.outliers <- NULL
+      } else {
+        rest.of.data.without.outliers <- data()[,1:(first-1)]
+      }
+      if(length(outliers) == 0){
+        data.without.outliers <- data
+        rest.of.data.without.outliers <- rest.of.data.without.outliers
+      } else {
+        data.without.outliers <- data[-outliers,]
+        rest.of.data.without.outliers <- rest.of.data.without.outliers[-outliers,]
+      }
       data3 <<- data.without.outliers
       data4 <<- rest.of.data.without.outliers
+      if(first == 1){
+        data5 <<- data3
+      } else {
+        data5 <<- cbind(data4, data3)
+      }
       print(paste("Number of multivariate outliers:", length(outliers)))
       print(" These outliers removed from your dataset.")
       br()
@@ -194,7 +212,6 @@ server <- function(input, output, session) {
         "data2fa.csv"
       },
       content = function(file) {
-        data5 <- cbind(data4, data3)
         write.csv2(data5, file, row.names = FALSE)
       }
     )
