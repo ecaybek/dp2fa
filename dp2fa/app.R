@@ -35,6 +35,9 @@ ui <- dashboardPage(
                     checkboxInput("fixmissing", 
                                   "Impute missing values?", 
                                   value = TRUE),
+                    numericInput("seed", 
+                                 "Seed for multiple imputation", 
+                                 value = "123"),
                     fluidRow(
                       column(6, uiOutput("run")),
                       column(6, uiOutput("dlButton"))
@@ -148,7 +151,7 @@ server <- function(input, output, session) {
             print("Missings are NOT completely at random.")
             br()
             print("Multiple imputation method was used.")
-            mimp <- mice(data, print = FALSE)
+            mimp <- mice(data, print = FALSE, seed = input$seed)
             imputed.data <- complete(mimp)
           } else{
             br()
