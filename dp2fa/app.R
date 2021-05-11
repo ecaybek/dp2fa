@@ -140,28 +140,33 @@ server <- function(input, output, session) {
       fullData <- data()
       first <- which(input$firstItem == colnames(data()))
       data <- fullData[,first:ncol(fullData)]
-      missing.test <- LittleMCAR(data)
-      if(sum(missing.test$amount.missing) == 0){
-        print("Your data does not contain any missing value!")
+      if(ncol(fullData) > 50){
+        print("Please upload a data less than 50 variables.")
         data2 <<- data
       } else {
-        if(isTRUE(input$fixmissing)){
-          if(missing.test$p.value < 0.05){
-            print("")
-            print("Missings are NOT completely at random.")
-            br()
-            print("Multiple imputation method was used.")
-            mimp <- mice(data, print = FALSE, seed = input$seed)
-            imputed.data <- complete(mimp)
-          } else{
-            br()
-            print("Missings are completely at random. Variable means will be used.")
-            imputed.data <- round(na_mean(data))
+        missing.test <- LittleMCAR(data)
+        if(sum(missing.test$amount.missing) == 0){
+          print("Your data does not contain any missing value!")
+          data2 <<- data
+          } else {
+            if(isTRUE(input$fixmissing)){
+              if(missing.test$p.value < 0.05){
+                print("")
+                print("Missings are NOT completely at random.")
+                br()
+                print("Multiple imputation method was used.")
+                mimp <- mice(data, print = FALSE, seed = input$seed)
+                imputed.data <- complete(mimp)
+                } else{
+                  br()
+                  print("Missings are completely at random. Variable means will be used.")
+                  imputed.data <- round(na_mean(data))
+                  }
+              data2 <<- imputed.data
+              print(head(data2))
+            }
           }
-          data2 <<- imputed.data
-          #colnames(data2) <<- paste0("i",1:ncol(data2))
-          print(head(data2))
-        }}
+        }
     })
     
     ##### Mahalanobis Distance & Remove Outliers #####
