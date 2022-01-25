@@ -140,14 +140,21 @@ server <- function(input, output, session) {
       fullData <- data()
       first <- which(input$firstItem == colnames(data()))
       data <- fullData[,first:ncol(fullData)]
-      if(ncol(fullData) > 50){
-        print("Please upload a data less than 50 variables.")
+      if(!isTRUE(input$fixmissing)){
+        print("Missing values did not investigated!")
         data2 <<- data
       } else {
-        missing.test <- LittleMCAR(data)
-        if(sum(missing.test$amount.missing) == 0){
-          print("Your data does not contain any missing value!")
+        
+        
+        if(ncol(fullData) > 50){
+          print("Please upload a data less than 50 variables
+              for Little's MCAR test")
           data2 <<- data
+        } else {
+          missing.test <- LittleMCAR(data)
+          if(sum(missing.test$amount.missing) == 0){
+            print("Your data does not contain any missing value!")
+            data2 <<- data
           } else {
             if(isTRUE(input$fixmissing)){
               if(missing.test$p.value < 0.05){
@@ -157,16 +164,17 @@ server <- function(input, output, session) {
                 print("Multiple imputation method was used.")
                 mimp <- mice(data, print = FALSE, seed = input$seed)
                 imputed.data <- complete(mimp)
-                } else{
-                  br()
-                  print("Missings are completely at random. Variable means will be used.")
-                  imputed.data <- round(na_mean(data))
-                  }
+              } else{
+                br()
+                print("Missings are completely at random. 
+                        Variable means will be used.")
+                imputed.data <- round(na_mean(data))
+              }
               data2 <<- imputed.data
               print(head(data2))
             }
           }
-        }
+        }}
     })
     
     ##### Mahalanobis Distance & Remove Outliers #####
@@ -185,7 +193,7 @@ server <- function(input, output, session) {
       if(first == 1){
         rest.of.data.without.outliers <- NULL
       } else {
-        rest.of.data.without.outliers <- data()[,1:(first-1)]
+        rest.of.data.without.outliers <- as.data.frame(data()[,1:(first-1)])
       }
       if(length(outliers) == 0){
         data.without.outliers <- data
